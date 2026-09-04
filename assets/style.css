@@ -250,6 +250,7 @@ footer p{font-size:.74rem;color:var(--w-dim);letter-spacing:.06em}
 #intro img{width:120px;height:auto;animation:logoIn 1.2s .2s ease both}
 #intro .line{width:0;height:1px;background:var(--gold-soft);margin-top:26px;animation:lineGrow 1.3s .6s cubic-bezier(.16,.84,.3,1) both}
 #intro .t{font-family:'Cormorant Garamond',serif;letter-spacing:.6em;text-indent:.6em;font-size:.8rem;color:#bfb7a6;margin-top:18px;animation:fadeUp 1s 1s ease both}
+#intro .t2{font-family:'Cormorant Garamond',serif;font-style:italic;letter-spacing:.35em;text-indent:.35em;font-size:.72rem;color:var(--gold-soft);margin-top:8px;animation:fadeUp 1s 1.25s ease both}
 @keyframes logoIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
 @keyframes lineGrow{from{width:0}to{width:220px}}
 
@@ -368,3 +369,8 @@ footer p{font-size:.74rem;color:var(--w-dim);letter-spacing:.06em}
 }
 @media(max-width:560px){.exp-grid.five{grid-template-columns:1fr}.vlist{grid-template-columns:1fr}.ens-hero{height:64vh}.latest .box{aspect-ratio:16/9}}
 @media(prefers-reduced-motion:reduce){#intro{display:none}.hero2 h1,.hero2 .body,.hero2 .acts{transform:none;opacity:1}.marq div{animation:none}}
+
+/* ---------- member hover alt photo (v25) ---------- */
+.member .photo{position:relative}
+.member .photo img.alt{position:absolute;inset:0;width:100%;height:100%;opacity:0;filter:grayscale(0);transition:opacity .7s ease,transform .9s cubic-bezier(.16,.84,.3,1)}
+.member:hover .photo img.alt{opacity:1;transform:scale(1.04)}
