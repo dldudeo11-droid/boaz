@@ -72,11 +72,11 @@ const lb=document.getElementById('lb'),lbimg=document.getElementById('lbimg');
 function bindLightbox(){
   document.querySelectorAll('.pcard:not([data-lb])').forEach(c=>{
     c.dataset.lb=1;
-    c.addEventListener('click',()=>{lbimg.src=c.querySelector('img').src;lb.classList.add('open')});
+    c.addEventListener('click',()=>{if(!lb)return;lbimg.src=c.querySelector('img').src;lb.classList.add('open')});
   });
 }
 bindLightbox();
-document.addEventListener('keydown',e=>{if(e.key==='Escape')lb.classList.remove('open')});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(lb)lb.classList.remove('open');closeVideo()}});
 
 function toggleTimeline(){
   const tl=document.getElementById('timeline'),btn=document.getElementById('tlbtn'),d=DICT();
@@ -92,20 +92,91 @@ function sendMail(f){
   return false;
 }
 
+
+/* ===================== On Stage (YouTube) ===================== */
+const S26={ko:"제6회 정기연주회 'No.6' · 수성아트피아 소극장 (2026.5.8)",en:"6th Annual Concert 'No.6' · Suseong Artpia (8 May 2026)",ja:"第6回定期演奏会 'No.6' · 寿城アートピア (2026.5.8)",zh:"第6届定期音乐会 'No.6' · 寿城艺术中心 (2026.5.8)"};
+const S17={ko:"'Talk to You' · 덕호아트홀 (2017.12.6)",en:"'Talk to You' · Deokho Art Hall (6 Dec 2017)",ja:"'Talk to You' · 徳湖アートホール (2017.12.6)",zh:"'Talk to You' · 德湖艺术厅 (2017.12.6)"};
+const S15={ko:'제2회 정기연주회 · 대구시민회관 챔버홀 (2015.8.14)',en:'2nd Annual Concert · Daegu Citizen Hall Chamber Hall (14 Aug 2015)',ja:'第2回定期演奏会 · 大邱市民会館 チェンバーホール (2015.8.14)',zh:'第2届定期音乐会 · 大邱市民会馆 室内乐厅 (2015.8.14)'};
+const VIDEOS=[
+ {id:'w9DiW0X-4Tc',y:2026,cat:'reg',dur:'9:07',t:{ko:'브루흐 피아노 5중주 g단조 — 1악장 Allegro molto moderato',en:'M. Bruch — Piano Quintet in G minor, I. Allegro molto moderato',ja:'ブルッフ ピアノ五重奏曲 ト短調 — 第1楽章',zh:'布鲁赫 g小调钢琴五重奏 — 第一乐章'},s:S26},
+ {id:'7WXiUHXhz4c',y:2026,cat:'reg',dur:'6:16',t:{ko:'브루흐 피아노 5중주 g단조 — 2악장 Adagio',en:'M. Bruch — Piano Quintet in G minor, II. Adagio',ja:'ブルッフ ピアノ五重奏曲 ト短調 — 第2楽章 Adagio',zh:'布鲁赫 g小调钢琴五重奏 — 第二乐章 Adagio'},s:S26},
+ {id:'6XzkiOCM0T8',y:2026,cat:'reg',dur:'6:22',t:{ko:'브루흐 피아노 5중주 g단조 — 3악장 Scherzo',en:'M. Bruch — Piano Quintet in G minor, III. Scherzo. Allegro molto',ja:'ブルッフ ピアノ五重奏曲 ト短調 — 第3楽章 Scherzo',zh:'布鲁赫 g小调钢琴五重奏 — 第三乐章 谐谑曲'},s:S26},
+ {id:'F0ZmnlF8yoo',y:2026,cat:'reg',dur:'5:02',t:{ko:'브루흐 피아노 5중주 g단조 — 4악장 Finale. Allegro agitato',en:'M. Bruch — Piano Quintet in G minor, IV. Finale. Allegro agitato',ja:'ブルッフ ピアノ五重奏曲 ト短調 — 第4楽章 Finale',zh:'布鲁赫 g小调钢琴五重奏 — 第四乐章 终曲'},s:S26},
+ {id:'rfPZrdDjnk4',y:2017,cat:'inv',dur:'6:23',t:{ko:'차이콥스키 현악 4중주 1번 — 2악장 Andante Cantabile',en:'Tchaikovsky — String Quartet No.1, II. Andante Cantabile',ja:'チャイコフスキー 弦楽四重奏曲第1番 — 第2楽章 アンダンテ・カンタービレ',zh:'柴可夫斯基 第一弦乐四重奏 — 第二乐章 如歌的行板'},s:S17},
+ {id:'d_MZ5Wvm8kM',y:2017,cat:'inv',dur:'6:54',t:{ko:"하이든 현악 4중주 '황제' — 2악장",en:"Haydn — String Quartet 'Emperor', II.",ja:"ハイドン 弦楽四重奏曲『皇帝』— 第2楽章",zh:"海顿 弦乐四重奏《皇帝》— 第二乐章"},s:S17},
+ {id:'aSVD1YYQglk',y:2017,cat:'inv',dur:'4:16',t:{ko:'쇼스타코비치 — 왈츠 2번',en:'Shostakovich — Waltz No.2',ja:'ショスタコーヴィチ — ワルツ第2番',zh:'肖斯塔科维奇 — 第二圆舞曲'},s:S17},
+ {id:'6woFc8ulKpA',y:2017,cat:'inv',dur:'4:57',t:{ko:'피아졸라 — 아베 마리아 (Va 이정민 · Pf 박연우)',en:'A. Piazzolla — Ave Maria (Va Lee Jung-min · Pf Park Yeon-woo)',ja:'ピアソラ — アヴェ・マリア (Va イ・ジョンミン · Pf パク・ヨヌ)',zh:'皮亚佐拉 — 圣母颂 (中提琴 李贞珉 · 钢琴 朴妍宇)'},s:{ko:'이정민 비올라 리사이틀 · 계명대학교 (2017.6.14)',en:'Lee Jung-min Viola Recital · Keimyung University (14 Jun 2017)',ja:'イ・ジョンミン ヴィオラ・リサイタル · 啓明大学校 (2017.6.14)',zh:'李贞珉中提琴独奏会 · 启明大学 (2017.6.14)'}},
+ {id:'P-8-li0Qdpg',y:2016,cat:'inv',dur:'24:00',t:{ko:"차이콥스키 — '호두까기 인형' 모음곡 Op.71a",en:"Tchaikovsky — The Nutcracker Suite, Op.71a",ja:"チャイコフスキー — 『くるみ割り人形』組曲 Op.71a",zh:"柴可夫斯基 — 《胡桃夹子》组曲 Op.71a"},s:{ko:'대구콘서트하우스 챔버홀 (2016.12.14)',en:'Daegu Concert House Chamber Hall (14 Dec 2016)',ja:'大邱コンサートハウス チェンバーホール (2016.12.14)',zh:'大邱音乐厅 室内乐厅 (2016.12.14)'}},
+ {id:'zhchtWxSKso',y:2015,cat:'reg',dur:'9:08',t:{ko:'슈만 피아노 5중주 E♭장조 Op.44 — 1악장',en:'R. Schumann — Piano Quintet in E-flat major, Op.44, I.',ja:'シューマン ピアノ五重奏曲 変ホ長調 Op.44 — 第1楽章',zh:'舒曼 降E大调钢琴五重奏 Op.44 — 第一乐章'},s:S15},
+ {id:'AKngEzza3bs',y:2015,cat:'reg',dur:'8:32',t:{ko:'슈만 피아노 5중주 E♭장조 Op.44 — 2악장',en:'R. Schumann — Piano Quintet in E-flat major, Op.44, II.',ja:'シューマン ピアノ五重奏曲 変ホ長調 Op.44 — 第2楽章',zh:'舒曼 降E大调钢琴五重奏 Op.44 — 第二乐章'},s:S15},
+ {id:'8NMrquq1JdE',y:2015,cat:'reg',dur:'4:56',t:{ko:'슈만 피아노 5중주 E♭장조 Op.44 — 3악장',en:'R. Schumann — Piano Quintet in E-flat major, Op.44, III.',ja:'シューマン ピアノ五重奏曲 変ホ長調 Op.44 — 第3楽章',zh:'舒曼 降E大调钢琴五重奏 Op.44 — 第三乐章'},s:S15},
+ {id:'n4yi3BCav_Y',y:2015,cat:'reg',dur:'6:31',t:{ko:'슈만 피아노 5중주 E♭장조 Op.44 — 4악장',en:'R. Schumann — Piano Quintet in E-flat major, Op.44, IV.',ja:'シューマン ピアノ五重奏曲 変ホ長調 Op.44 — 第4楽章',zh:'舒曼 降E大调钢琴五重奏 Op.44 — 第四乐章'},s:S15},
+ {id:'Z-nlofZHT-o',y:2015,cat:'reg',dur:'5:49',t:{ko:"비발디 — '사계' 중 '여름' (현악 4중주)",en:"A. Vivaldi — 'Summer' from The Four Seasons (string quartet)",ja:"ヴィヴァルディ — 『四季』より『夏』(弦楽四重奏)",zh:"维瓦尔第 — 《四季》之《夏》(弦乐四重奏)"},s:S15}
+];
+const V_SHOW=8;
+let VCAT='all',VALL=false;
+function vtxt(o){return o[LANG]||o.en||o.ko}
+function ythumb(id,hi){return 'https://i.ytimg.com/vi/'+id+'/'+(hi?'maxresdefault':'hqdefault')+'.jpg'}
+function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
+function renderStage(){
+  const vf=document.getElementById('vfeat'),vl=document.getElementById('vlist');
+  if(!vf||!vl)return;
+  const d=DICT();
+  const list=VIDEOS.filter(v=>VCAT==='all'||v.cat===VCAT);
+  const f=list[0];
+  const catName=c=>c==='reg'?d.st_f1:d.st_f2;
+  vf.innerHTML=f?'<div class="player" onclick="openVideo(\''+f.id+'\')"><span class="yt">▶ YOUTUBE</span><img src="'+ythumb(f.id,true)+'" onerror="this.onerror=null;this.src=\''+ythumb(f.id)+'\'" alt="'+esc(vtxt(f.t))+'"><div class="play"><i></i></div></div>'
+   +'<div class="vmeta"><div class="y">'+f.y+' · '+esc(vtxt(f.s))+'</div><h3>'+esc(vtxt(f.t))+'</h3><p>Ensemble BOAZ · '+f.dur+'</p><span class="chip">'+catName(f.cat)+'</span><br><a class="hbtn" href="https://www.youtube.com/@dldudeo11" target="_blank" rel="noopener">'+d.st_yt+'</a></div>':'';
+  vl.innerHTML=list.slice(1).map((v,i)=>'<div class="vcard'+(!VALL&&i>=V_SHOW?' hid':'')+'" onclick="openVideo(\''+v.id+'\')"><div class="thumb"><img src="'+ythumb(v.id)+'" alt="'+esc(vtxt(v.t))+'" loading="lazy"><div class="pl"></div><span class="dur">'+v.dur+'</span></div><div class="y">'+v.y+'</div><div class="t">'+esc(vtxt(v.t))+'</div><div class="s">'+esc(vtxt(v.s))+'</div></div>').join('');
+  const btn=document.getElementById('vbtn');
+  if(btn){btn.style.display=list.length-1>V_SHOW?'block':'none';btn.textContent=VALL?d.st_less:d.st_more}
+}
+function toggleVideos(){VALL=!VALL;renderStage()}
+function openVideo(id){
+  const b=document.getElementById('vlb'),f=document.getElementById('vlbif');
+  if(!b||!f)return;
+  f.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0';
+  b.classList.add('open');
+}
+function closeVideo(){
+  const b=document.getElementById('vlb'),f=document.getElementById('vlbif');
+  if(!b||!b.classList.contains('open'))return;
+  b.classList.remove('open');f.src='';
+}
+(function(){
+  const b=document.getElementById('vlb');
+  if(b)b.addEventListener('click',e=>{if(e.target===b||e.target.classList.contains('x'))closeVideo()});
+  const fl=document.getElementById('vfilters');
+  if(fl)fl.querySelectorAll('span').forEach(sp=>sp.addEventListener('click',()=>{fl.querySelectorAll('span').forEach(x=>x.classList.remove('on'));sp.classList.add('on');VCAT=sp.dataset.cat;VALL=false;renderStage()}));
+  const intro=document.getElementById('intro');
+  if(intro){
+    let seen=false;try{seen=sessionStorage.getItem('boaz-intro')==='1'}catch(e){}
+    if(seen){intro.remove();document.body.classList.add('ready','no-intro')}
+    else{
+      setTimeout(()=>{intro.classList.add('done');document.body.classList.add('ready')},2000);
+      setTimeout(()=>intro.remove(),3500);
+      try{sessionStorage.setItem('boaz-intro','1')}catch(e){}
+    }
+  }else{document.body.classList.add('ready')}
+})();
+
 /* ===================== i18n ===================== */
 let LANG='ko';
 const KO={};
-const KO_UI={tl_more:'전체 연혁 보기 +',tl_less:'간략히 보기 −',pg_more:'전체 연주 스케치 보기 +',pg_less:'대표작만 보기 −'};
+const KO_UI={tl_more:'전체 연혁 보기 +',tl_less:'간략히 보기 −',pg_more:'전체 포스터 보기 +',pg_less:'대표작만 보기 −',st_more:'전체 영상 보기 +',st_less:'대표 영상만 보기 −',st_f1:'정기연주회',st_f2:'기획·초청',st_yt:'YouTube 채널 →'};
 const T={
 en:{
- n1:'About',n2:'History',n3:'Sketches',n4:'Members',n5:'Booking',
+ ns_lab:'Latest',ns_h2:'Now On Stage',ns_all:'ALL VIDEOS →',ns_y:"2026 · 6th Annual Concert 'No.6'",ns_t:'M. Bruch — Piano Quintet in G minor',
+ st_h2:'Live performance videos',st_f0:'All',st_f1:'Annual Concerts',st_f2:'Curated & Invited',st_more:'View all videos +',st_less:'Featured only −',st_yt:'YouTube channel →',st_note:'Click a card to play it right here · Source: YouTube',
+ mem_q:'The moment eleven voices become a single breath',mem_lede:"In 2014, young musicians who met at Keimyung University came together under the name <b>'BOAZ'</b>.<br>Violin, viola, cello, piano, percussion — eleven different voices<br>breathing as one on stage.",exp6:'Live performance videos',
+ n1:'About',n2:'History',n3:'Performances',n6:'On Stage',n4:'Members',n5:'Booking',
  h_sub:'A string ensemble of bold, vibrant young musicians',h_badge:'Designated Ensemble of Daegu Metropolitan City (2023)',
  a_h2:"Like our name — Hebrew for <b>'strength'</b> —<br>we craft the most solid sound<br>on stage.",
  a_p1:"<strong>Ensemble BOAZ</strong> began as a male string ensemble of Keimyung University graduates, opening with a sold-out debut concert in January 2015. With 1st prize at the Global Competition (chamber music) and the Busan Mayor's Award, the ensemble has grown through its annual concert series.",
  a_p2:"With studies in Germany and Italy, a solo invitation to the <strong>Tenerife International Festival</strong> in Spain and a <strong>2024 Japan tour (Kobe·Osaka)</strong>, BOAZ was designated an official ensemble of <strong>Daegu Metropolitan City in 2023</strong> and performs actively at home and abroad.",
  s_conc:'Annual Concerts',s_tour:'Countries Toured',s_shows:'Curated & Invited Shows',
  f_name_t:'Name',f_name:'Ensemble BOAZ',f_rep_t:'Directors',f_rep:'Lee Jung-min · Kang Kyung-shin',f_staff_t:'Administration',f_staff:'Han Jeong-su',f_found_t:'Founded',f_found:'2014',f_comp_t:'Formation',f_comp:'String ensemble (violin·viola·cello·piano·percussion)',f_desig_t:'Designation',f_desig:'Designated Ensemble of Daegu (2023)',
- hist_h2:'History',sk_h2:'Sketches',mem_h2:'Members',
+ hist_h2:'History',sk_h2:'Performances',mem_h2:'Members',
  b26:"<b>6th Annual Concert 'No.6'</b> (Suseong Artpia) · Lobby Concert 'Rhythm of the Lobby – Piazzolla' · <b>AMICONE with Ensemble BOAZ</b> · Goryeong-in Young Artists Project 'Never Ending Story'",
  b25:"Gyeongbuk Foundation <b>'Beyond Four Seasons'</b> (Gyeongju Arts Center) · 'Texture of Winter' · Park Tae-jun Memorial Concert",
  b24:"<b>5th Annual Concert 'THE BOAZ'</b> (Daegu Concert House) · <b>1st Japan Concert</b> (Kobe·Osaka)",
@@ -131,7 +202,7 @@ en:{
  d17_1:"4th Annual Concert 'LUXURY TIME'",d17_2:"'Talk to You'",
  d16_1:"3rd Annual Concert 'Track3'",d16_2:"Daegu Concert House Tuesday series · Daegu Spring Ensemble Festival",d16_3:"'Romanza' · 'La Vita è Bella' · Sujak Concert",d16_4:"2nd Prize, Paholo Competition · 3rd Prize, Gyeongju Int'l Competition (chamber)",
  d15_1:"Debut concert 'No.1 1mov' (Daegu Concert House) — sold out",d15_2:"'Season 2' · 3Days Concert",d15_3:"1st Prize & Grand Prize, Global Competition (chamber) · Busan Mayor's Award",
- tl_more:'View full history +',tl_less:'Show less −',pg_more:'View all sketches +',pg_less:'Highlights only −',sk_note:'Click an image to enlarge',
+ tl_more:'View full history +',tl_less:'Show less −',pg_more:'View all posters +',pg_less:'Highlights only −',sk_note:'Click an image to enlarge',
  p:["6th Annual Concert 'No.6'","Goryeong-in Young Artists Project 'Never Ending Story'","AMICONE with Ensemble BOAZ · A Midsummer Journey of Art Songs","Lobby Concert · Rhythm of the Lobby – Piazzolla","Texture of Winter","Beyond Four Seasons","1st Japan Concert · Kobe/Osaka","5th Annual Concert 'THE BOAZ'","Daegu International Music Festival","Opera Journey","Daegu Artist Week 'Embrace'","'A Midsummer Night's Dream'","Tenerife International Festival · Spain","4th Annual Concert 'LUXURY TIME'","Debut Concert (1st Annual)"],
  ex:["Goryeong Youth Project 'Echo of Dreams'","14th Park Tae-jun Memorial Concert","Underscore for Cinema","Beyond The Sequence","Spring Concert","Goryeong Youth Project 'Byeol Jjibu Jjabu'","Film Music Concert","Dongseongno Renaissance Project","13th Park Tae-jun Memorial Concert","Korea Through Its Songs","For Viola","12th Park Tae-jun Memorial Concert","Dalseo Festival","Rising Artists Project","Night of Beethoven","Talk to You Project Concert","Blink of Summer","Daegu Arts Center 'Start-up'","Suseong Artpia Artist Support Project","Sound of Music","Festival Academia · Spain","Talk to You","Sujak Concert","La Vita è Bella","Daegu Spring Ensemble Festival","'Romanza'","3rd Annual Concert 'Track3'","3Days Concert for Strings","Season 2"],
  mn:["Lee Jung-min","Kang Kyung-shin","Park Nu-ri","Han Hye-min","Choi Su-hyuk","Kim Sung-won","Kim Bo-seok","Oh Kuk-hwan","Lee Hee-su","Kim Kyung-won","Nam Jung-hun"],
@@ -157,14 +228,14 @@ en:{
  exp_h2:'Explore',exp_lead:'Discover Ensemble BOAZ',exp2:'From our 2014 founding to today',exp3:'Posters & moments from our stages',exp4:'The musicians of BOAZ',exp5:'Invite BOAZ to your stage',exp_view:'VIEW'
 },
 de:{
- n1:'Über uns',n2:'Geschichte',n3:'Galerie',n4:'Mitglieder',n5:'Kontakt',
+ n1:'Über uns',n2:'Geschichte',n3:'Aufführungen',n6:'On Stage',n4:'Mitglieder',n5:'Kontakt',
  h_sub:'Ein Streicherensemble junger, kraftvoller Musiker',h_badge:'Offizielles Ensemble der Stadt Daegu (2023)',
  a_h2:'Wie unser Name — hebräisch für <b>„Stärke“</b> —<br>formen wir den festesten Klang<br>auf der Bühne.',
  a_p1:'<strong>Ensemble BOAZ</strong> entstand als Streicherensemble von Absolventen der Keimyung-Universität und debütierte im Januar 2015 mit einem ausverkauften Konzert. Mit dem 1. Preis beim Global-Wettbewerb (Kammermusik) und dem Preis des Bürgermeisters von Busan wuchs das Ensemble durch seine jährliche Konzertreihe.',
  a_p2:'Nach Studien in Deutschland und Italien, einer Einladung zum <strong>Internationalen Festival auf Teneriffa</strong> (Spanien) und einer <strong>Japan-Tournee 2024 (Kobe·Osaka)</strong> wurde BOAZ <strong>2023 zum offiziellen Ensemble der Stadt Daegu</strong> ernannt.',
  s_conc:'Jahreskonzerte',s_tour:'Tournee-Länder',s_shows:'Kuratierte Konzerte',
  f_name_t:'Name',f_name:'Ensemble BOAZ',f_rep_t:'Leitung',f_rep:'Lee Jung-min · Kang Kyung-shin',f_staff_t:'Verwaltung',f_staff:'Han Jeong-su',f_found_t:'Gegründet',f_found:'2014',f_comp_t:'Besetzung',f_comp:'Streicherensemble (Violine·Viola·Cello·Klavier·Schlagwerk)',f_desig_t:'Auszeichnung',f_desig:'Offizielles Ensemble der Stadt Daegu (2023)',
- hist_h2:'Geschichte',sk_h2:'Galerie',mem_h2:'Mitglieder',
+ hist_h2:'Geschichte',sk_h2:'Aufführungen',mem_h2:'Mitglieder',
  b26:'<b>6. Jahreskonzert „No.6“</b> (Suseong Artpia) · Foyerkonzert „Rhythmus des Foyers – Piazzolla“ · <b>AMICONE with Ensemble BOAZ</b> · Junge-Künstler-Projekt Goryeong-in „Never Ending Story“',b25:'<b>„Beyond Four Seasons“</b> (Gyeongju Arts Center) · „Textur des Winters“ · Park-Tae-jun-Gedenkkonzert',b24:'<b>5. Jahreskonzert „THE BOAZ“</b> (Daegu Concert House) · <b>1. Japan-Konzert</b> (Kobe·Osaka)',b23:'<b>Ernennung zum Ensemble der Stadt Daegu</b> · Daegu Int. Musikfestival · Gründung von „The BOAZ (Gyeongbuk)“',b22:'Erweiterung zum Orchester · DSAC <b>Opera with BOAZ</b> (Dalseo Arts Center)',b21:'Daegu Artist Week <b>„Embrace (Pumda)“</b> (Daegu Concert House)',b20:'Shinsegae-Konzerte · Suseong-Artpia-Künstlerprojekt',b19:'<b>„Ein Sommernachtstraum“</b> Gemeinschaftskonzert (Daegu Concert House)',b18:'Einladung zum <b>Internationalen Festival auf Teneriffa</b>, Spanien',b17:'<b>4. Jahreskonzert „LUXURY TIME“</b>',b16:'3. Jahreskonzert „Track3“ · Dienstagsreihe im Daegu Concert House',b15:'<b>Ausverkauftes Debütkonzert</b> · 1. Preis Global-Wettbewerb · Preis des Bürgermeisters von Busan',b14:'Gründung des Ensemble BOAZ',
  tl_more:'Vollständige Geschichte +',tl_less:'Weniger anzeigen −',pg_more:'Alle Plakate ansehen +',pg_less:'Nur Highlights −',sk_note:'Bild anklicken zum Vergrößern',
  c_lede:'Wenn der Moment eine besondere Bühne verlangt,<br>ist BOAZ an Ihrer Seite.',c_desc:'Kuratierte Konzerte · Firmen- und Institutionsveranstaltungen · festliche Auftritte · Festival-Einladungen.',
@@ -174,14 +245,14 @@ de:{
  foot:'Verwaltung: Han Jeong-su +82-10-2870-9539 · sosages90@hotmail.com<br>Seit 2014 · Offizielles Ensemble der Stadt Daegu (2023) · © 2026 Ensemble BOAZ'
 },
 es:{
- n1:'Nosotros',n2:'Historia',n3:'Galería',n4:'Miembros',n5:'Contacto',
+ n1:'Nosotros',n2:'Historia',n3:'Actuaciones',n6:'On Stage',n4:'Miembros',n5:'Contacto',
  h_sub:'Un ensamble de cuerdas de músicos jóvenes y vibrantes',h_badge:'Conjunto designado por la Ciudad de Daegu (2023)',
  a_h2:"Como nuestro nombre — <b>'fuerza'</b> en hebreo —<br>creamos el sonido más sólido<br>del escenario.",
  a_p1:'<strong>Ensemble BOAZ</strong> nació como un ensamble de cuerdas de graduados de la Universidad Keimyung y debutó en enero de 2015 con un concierto con entradas agotadas. Con el 1er premio del Concurso Global (música de cámara) y el Premio del Alcalde de Busan, el conjunto ha crecido con su serie anual de conciertos.',
  a_p2:'Tras estudios en Alemania e Italia, una invitación al <strong>Festival Internacional de Tenerife</strong> (España) y una <strong>gira por Japón en 2024 (Kobe·Osaka)</strong>, BOAZ fue designado conjunto oficial de la <strong>Ciudad de Daegu en 2023</strong>.',
  s_conc:'Conciertos anuales',s_tour:'Países de gira',s_shows:'Conciertos invitados',
  f_name_t:'Nombre',f_name:'Ensemble BOAZ',f_rep_t:'Directores',f_rep:'Lee Jung-min · Kang Kyung-shin',f_staff_t:'Administración',f_staff:'Han Jeong-su',f_found_t:'Fundación',f_found:'2014',f_comp_t:'Formación',f_comp:'Ensamble de cuerdas (violín·viola·violonchelo·piano·percusión)',f_desig_t:'Designación',f_desig:'Conjunto designado por Daegu (2023)',
- hist_h2:'Historia',sk_h2:'Galería',mem_h2:'Miembros',
+ hist_h2:'Historia',sk_h2:'Actuaciones',mem_h2:'Miembros',
  b26:"<b>6.º Concierto anual 'No.6'</b> (Suseong Artpia) · Concierto de vestíbulo 'Ritmo del vestíbulo – Piazzolla' · <b>AMICONE with Ensemble BOAZ</b> · Proyecto de Jóvenes Artistas Goryeong-in 'Never Ending Story'",b25:"<b>'Beyond Four Seasons'</b> (Centro de Artes de Gyeongju) · 'Textura del invierno' · Concierto Park Tae-jun",b24:"<b>5.º Concierto anual 'THE BOAZ'</b> (Daegu Concert House) · <b>1.er Concierto en Japón</b> (Kobe·Osaka)",b23:"<b>Designación por la Ciudad de Daegu</b> · Festival Int. de Música de Daegu · Fundación de 'The BOAZ (Gyeongbuk)'",b22:'Expansión a escala orquestal · DSAC <b>Opera with BOAZ</b> (Dalseo Arts Center)',b21:"Daegu Artist Week <b>'Embrace (Pumda)'</b> (Daegu Concert House)",b20:'Conciertos Shinsegae · Proyecto de artistas Suseong Artpia',b19:"<b>'El sueño de una noche de verano'</b> concierto coproducido (Daegu Concert House)",b18:'Invitación al <b>Festival Internacional de Tenerife</b>, España',b17:"<b>4.º Concierto anual 'LUXURY TIME'</b>",b16:"3.er Concierto anual 'Track3' · Serie de martes del Daegu Concert House",b15:'<b>Debut con entradas agotadas</b> · 1.er premio Concurso Global · Premio del Alcalde de Busan',b14:'Fundación del Ensemble BOAZ',
  tl_more:'Ver historia completa +',tl_less:'Ver menos −',pg_more:'Ver todos los carteles +',pg_less:'Solo destacados −',sk_note:'Haga clic en una imagen para ampliarla',
  c_lede:'Cuando el momento exige un escenario con distinción,<br>BOAZ le acompaña.',c_desc:'Conciertos curados · eventos corporativos e institucionales · actuaciones de celebración · invitaciones a festivales.',
@@ -191,14 +262,17 @@ es:{
  foot:'Administración: Han Jeong-su +82-10-2870-9539 · sosages90@hotmail.com<br>Desde 2014 · Conjunto designado por Daegu (2023) · © 2026 Ensemble BOAZ'
 },
 ja:{
- n1:'紹介',n2:'沿革',n3:'演奏スケッチ',n4:'メンバー',n5:'出演依頼',
+ ns_lab:'Latest',ns_h2:'Now On Stage',ns_all:'ALL VIDEOS →',ns_y:"2026 · 第6回定期演奏会 'No.6'",ns_t:'ブルッフ — ピアノ五重奏曲 ト短調',
+ st_h2:'舞台実況映像',st_f0:'すべて',st_f1:'定期演奏会',st_f2:'企画・招待',st_more:'すべての映像を見る +',st_less:'代表映像のみ −',st_yt:'YouTubeチャンネル →',st_note:'カードをクリックするとその場で再生されます · 出典: YouTube',
+ mem_q:'十一の音が、ひとつの呼吸になる瞬間',mem_lede:"2014年、啓明大学校で出会った若い演奏家たちが<b>『BOAZ』</b>の名のもとに集まりました。<br>ヴァイオリン・ヴィオラ・チェロ・ピアノ・打楽器 — 異なる十一の音が<br>ひとつの呼吸で息づく舞台をつくります。",exp6:'舞台実況映像',
+ n1:'紹介',n2:'沿革',n3:'公演',n6:'On Stage',n4:'メンバー',n5:'出演依頼',
  h_sub:'力強く活気あふれる若手演奏家による弦楽アンサンブル',h_badge:'2023年 大邱広域市指定団体',
  a_h2:'ヘブライ語で<b>「強さ」</b>を意味する名のように、<br>舞台の上で最も揺るぎない音を<br>作り続けます。',
  a_p1:'<strong>Ensemble BOAZ</strong>は啓明大学校出身の男性弦楽アンサンブルとして始まり、2015年1月、全席完売の創団演奏会で初舞台を飾りました。グローバルコンクール室内楽部門1位、釜山市長賞などで実力を証明し、毎年の定期演奏会とともに成長してきました。',
  a_p2:'ドイツ・イタリア留学、スペイン・<strong>テネリフェ国際フェスティバル単独招請</strong>、<strong>2024年日本公演（神戸・大阪）</strong>など国際舞台へ活動を広げ、<strong>2023年に大邱広域市指定団体</strong>に選定されました。',
  s_conc:'定期演奏会',s_tour:'海外公演国',s_shows:'企画・招待公演',
  f_name_t:'団体名',f_name:'Ensemble BOAZ（アンサンブル・ボアズ）',f_rep_t:'代表',f_rep:'イ・ジョンミン／カン・ギョンシン',f_staff_t:'事務局',f_staff:'ハン・ジョンス',f_found_t:'創団',f_found:'2014年',f_comp_t:'編成',f_comp:'弦楽アンサンブル（ヴァイオリン・ヴィオラ・チェロ・ピアノ・パーカッション）',f_desig_t:'指定',f_desig:'2023年 大邱広域市指定団体',
- hist_h2:'沿革',sk_h2:'演奏スケッチ',mem_h2:'メンバー',
+ hist_h2:'沿革',sk_h2:'公演',mem_h2:'メンバー',
  b26:'<b>第6回定期演奏会『No.6』</b>（水城アートピア小劇場）・ロビーコンサート『ロビーのリズム – ピアソラ』・<b>AMICONE with Ensemble BOAZ</b>・青年芸術家 高霊 in プロジェクト『Never Ending Story』',b25:'慶北文化財団<b>『Beyond Four Seasons』</b>（慶州芸術の殿堂）・『冬の結』・朴泰俊記念音楽会',b24:'<b>第5回定期演奏会『THE BOAZ』</b>（大邱コンサートハウス）・<b>初日本公演</b>（神戸・大阪）',b23:'<b>大邱広域市指定団体に選定</b>・大邱国際音楽祭・『The BOAZ（慶北）』設立',b22:'オーケストラ規模に拡大・DSAC <b>Opera with BOAZ</b>（達西アートセンター）',b21:'大邱アーティストウィーク<b>『抱く（품다）』</b>（大邱コンサートハウス）',b20:'新世界百貨店企画演奏・水城アートピア芸術家プロジェクト',b19:'<b>『真夏の夜の夢』</b>共同企画コンサート（大邱コンサートハウス）',b18:'スペイン<b>テネリフェ国際フェスティバル</b>招請演奏',b17:'<b>第4回定期演奏会『LUXURY TIME』</b>',b16:'第3回定期演奏会『Track3』・大邱コンサートハウス火曜企画演奏',b15:'<b>創団演奏会（全席完売）</b>・グローバルコンクール室内楽1位・釜山市長賞',b14:'Ensemble BOAZ 創団',
  d26_1:'第6回定期演奏会『No.6』— W. A. モーツァルト・ナム・ジョンフン・M. ブルッフ（水城アートピア小劇場）',d26_2:'ロビーコンサート『ロビーのリズム – ピアソラ』（2026.7.2、水城アートピア大劇場ロビー）',d26_3:'AMICONE with Ensemble BOAZ — 図書館クールクラシック『真夏の歌曲の旅』（2026.7.30、水城区立汎魚図書館 キム・マンヨン／パク・スニョンホール）',d26_4:'青年芸術家 高霊 in プロジェクト Season 4 — 音楽劇『Never Ending Story：終わらない青春の歌』（2026.8.29、大伽耶文化ヌリ 于勒ホール）',
  d25_1:'慶北文化財団支援『Beyond Four Seasons』（慶州芸術の殿堂）',d25_2:'『冬の結』（12月）',d25_3:'高霊巡回音楽会 4回',d25_4:'大邱童謡協会『Summer Dream Concert』',d25_5:'朴泰俊記念音楽会',
@@ -212,7 +286,7 @@ ja:{
  d17_1:'第4回定期演奏会『LUXURY TIME』',d17_2:'『Talk to You』',
  d16_1:'第3回定期演奏会『Track3』',d16_2:'大邱コンサートハウス火曜企画演奏・大邱春のアンサンブルフェスティバル',d16_3:'『ロマンツァ』・『La Vita è Bella』・秀作コンサート',d16_4:'パホロ音楽コンクール室内楽2位・慶州国際コンクール室内楽3位',
  d15_1:'創団演奏会『No.1 1mov』（大邱コンサートハウス）— 全席完売',d15_2:'『Season 2』・3Days Concert',d15_3:'グローバルコンクール室内楽1位および大賞・釜山市長賞',
- tl_more:'全沿革を見る +',tl_less:'簡略表示 −',pg_more:'すべてのスケッチを見る +',pg_less:'代表作のみ −',sk_note:'画像をクリックすると拡大できます',
+ tl_more:'全沿革を見る +',tl_less:'簡略表示 −',pg_more:'すべてのポスターを見る +',pg_less:'代表作のみ −',sk_note:'画像をクリックすると拡大できます',
  p:['第6回定期演奏会『No.6』','青年芸術家 高霊 in プロジェクト『Never Ending Story』','AMICONE with Ensemble BOAZ・真夏の歌曲の旅','ロビーコンサート・ロビーのリズム – ピアソラ','冬の結','Beyond Four Seasons','1st Japan Concert・神戸/大阪','第5回定期演奏会『THE BOAZ』','大邱国際音楽祭','オペラの旅','大邱アーティストウィーク『抱く』','真夏の夜の夢','テネリフェ国際フェスティバル・スペイン','第4回定期演奏会『LUXURY TIME』','創団演奏会（第1回）'],
  ex:['高霊青年プロジェクト『夢のこだま』','第14回朴泰俊記念音楽会','Underscore for Cinema','Beyond The Sequence','春のコンサート','高霊青年プロジェクト『ビョル・チブ・チャブ』','映画音楽コンサート','東城路ルネサンスプロジェクト','第13回朴泰俊記念音楽会','歌曲で見る大韓民国','For Viola','第12回朴泰俊記念音楽会','達西フェスティバル','有望芸術家発掘プロジェクト','ベートーヴェンの夜','Talk to You プロジェクトコンサート','Blink of Summer','大邱文化芸術会館『スタートアップ』','水城アートピア芸術家支援プロジェクト','Sound of Music','フェスティバル・アカデミア（スペイン）','Talk to You','秀作コンサート','La Vita è Bella','大邱春のアンサンブルフェスティバル','『ロマンツァ』','第3回定期演奏会『Track3』','3Days Concert for Strings','Season 2'],
  mn:['イ・ジョンミン','カン・ギョンシン','パク・ヌリ','ハン・ヘミン','チェ・スヒョク','キム・ソンウォン','キム・ボソク','オ・グッファン','イ・ヒス','キム・ギョンウォン','ナム・ジョンフン'],
@@ -235,14 +309,17 @@ ja:{
  foot:'事務局：ハン・ジョンス +82-10-2870-9539 · sosages90@hotmail.com<br>Since 2014 · 2023年大邱広域市指定団体 · © 2026 Ensemble BOAZ'
 },
 zh:{
- n1:'简介',n2:'沿革',n3:'演出掠影',n4:'成员',n5:'演出洽询',
+ ns_lab:'Latest',ns_h2:'Now On Stage',ns_all:'ALL VIDEOS →',ns_y:"2026 · 第6届定期音乐会 'No.6'",ns_t:'布鲁赫 — g小调钢琴五重奏',
+ st_h2:'舞台实况视频',st_f0:'全部',st_f1:'定期音乐会',st_f2:'策划·邀请',st_more:'查看全部视频 +',st_less:'仅看代表视频 −',st_yt:'YouTube频道 →',st_note:'点击卡片即可在此播放 · 来源: YouTube',
+ mem_q:'十一种声音，一次呼吸',mem_lede:"2014年，在启明大学相遇的年轻演奏家们以<b>'BOAZ'</b>之名聚在一起。<br>小提琴、中提琴、大提琴、钢琴、打击乐 — 十一种不同的声音<br>在舞台上化为同一次呼吸。",exp6:'舞台实况视频',
+ n1:'简介',n2:'沿革',n3:'演出',n6:'On Stage',n4:'成员',n5:'演出洽询',
  h_sub:'由充满活力的年轻演奏家组成的弦乐团',h_badge:'2023年大邱广域市指定团体',
  a_h2:'正如希伯来语中意为<b>“力量”</b>的名字，<br>我们在舞台上奏出<br>最坚实的声音。',
  a_p1:'<strong>Ensemble BOAZ</strong>由启明大学毕业生组成的男性弦乐团起步，2015年1月以全场售罄的创团音乐会登上首个舞台。曾获全球音乐比赛室内乐组第一名、釜山市长奖等，通过每年的定期音乐会不断成长。',
  a_p2:'乐团曾赴德国、意大利深造，受邀<strong>西班牙特内里费国际音乐节</strong>独家演出，并于<strong>2024年赴日本（神户·大阪）巡演</strong>，2023年被选定为<strong>大邱广域市指定团体</strong>，活跃于国内外舞台。',
  s_conc:'定期音乐会',s_tour:'海外巡演国家',s_shows:'特邀演出',
  f_name_t:'团体名称',f_name:'Ensemble BOAZ',f_rep_t:'代表',f_rep:'Lee Jung-min · Kang Kyung-shin',f_staff_t:'行政',f_staff:'Han Jeong-su',f_found_t:'创团',f_found:'2014年',f_comp_t:'编制',f_comp:'弦乐团（小提琴·中提琴·大提琴·钢琴·打击乐）',f_desig_t:'指定',f_desig:'2023年大邱广域市指定团体',
- hist_h2:'沿革',sk_h2:'演出掠影',mem_h2:'成员',
+ hist_h2:'沿革',sk_h2:'演出',mem_h2:'成员',
  b26:"<b>第六届定期音乐会'No.6'</b>（寿城Artpia小剧场）·大厅音乐会'大厅的节奏 – 皮亚佐拉'·<b>AMICONE with Ensemble BOAZ</b>·青年艺术家 高灵 in 项目'Never Ending Story'",b25:"庆北文化财团<b>'Beyond Four Seasons'</b>（庆州艺术殿堂）·'冬之结'·朴泰俊纪念音乐会",b24:"<b>第五届定期音乐会'THE BOAZ'</b>（大邱音乐厅）·<b>首次日本公演</b>（神户·大阪）",b23:"<b>入选大邱广域市指定团体</b>·大邱国际音乐节·成立'The BOAZ（庆北）'",b22:'扩编至管弦乐团规模·DSAC <b>Opera with BOAZ</b>（达西艺术中心）',b21:"大邱艺术家周<b>'拥抱（품다）'</b>（大邱音乐厅）",b20:'新世界百货企划演出·寿城Artpia艺术家项目',b19:'<b>《仲夏夜之梦》</b>联合企划音乐会（大邱音乐厅）',b18:'受邀<b>西班牙特内里费国际音乐节</b>演出',b17:"<b>第四届定期音乐会'LUXURY TIME'</b>",b16:"第三届定期音乐会'Track3'·大邱音乐厅周二企划演出",b15:'<b>创团音乐会（全场售罄）</b>·全球比赛室内乐第一名·釜山市长奖',b14:'Ensemble BOAZ 创团',
  d26_1:"第六届定期音乐会'No.6' — W. A. 莫扎特·南廷勋·M. 布鲁赫（寿城Artpia小剧场）",d26_2:"大厅音乐会'大厅的节奏 – 皮亚佐拉'（2026.7.2，寿城Artpia大剧场大厅）",d26_3:"AMICONE with Ensemble BOAZ — 图书馆Cool-Classic'仲夏艺术歌曲之旅'（2026.7.30，寿城区立泛鱼图书馆 金万龙·朴寿年厅）",d26_4:"青年艺术家 高灵 in 项目 Season 4 — 音乐剧'Never Ending Story：永不落幕的青春之歌'（2026.8.29，大伽倻文化Nuri 于勒厅）",
  d25_1:"庆北文化财团支持'Beyond Four Seasons'（庆州艺术殿堂）",d25_2:"'冬之结'（12月）",d25_3:'高灵巡回音乐会4场',d25_4:"大邱童谣协会'Summer Dream Concert'",d25_5:'朴泰俊纪念音乐会',
@@ -278,14 +355,14 @@ zh:{
  foot:'行政：Han Jeong-su +82-10-2870-9539 · sosages90@hotmail.com<br>Since 2014 · 2023年大邱广域市指定团体 · © 2026 Ensemble BOAZ'
 },
 th:{
- n1:'เกี่ยวกับเรา',n2:'ประวัติ',n3:'แกลเลอรี',n4:'สมาชิก',n5:'ติดต่อจ้างงาน',
+ n1:'เกี่ยวกับเรา',n2:'ประวัติ',n3:'การแสดง',n6:'On Stage',n4:'สมาชิก',n5:'ติดต่อจ้างงาน',
  h_sub:'วงเครื่องสายของนักดนตรีรุ่นใหม่ที่เปี่ยมพลัง',h_badge:'วงดนตรีในสังกัดนครแทกู (2023)',
  a_h2:"ดั่งชื่อวงที่แปลว่า <b>'พลัง'</b> ในภาษาฮีบรู<br>เราสร้างเสียงที่หนักแน่นที่สุด<br>บนเวที",
  a_p1:'<strong>Ensemble BOAZ</strong> เริ่มต้นจากวงเครื่องสายชายของศิษย์เก่ามหาวิทยาลัยคเยมยอง เปิดตัวในเดือนมกราคม 2015 ด้วยคอนเสิร์ตที่บัตรขายหมด คว้ารางวัลที่ 1 การแข่งขัน Global (เชมเบอร์) และรางวัลนายกเทศมนตรีปูซาน เติบโตผ่านคอนเสิร์ตประจำปีอย่างต่อเนื่อง',
  a_p2:'จากการศึกษาในเยอรมนีและอิตาลี การแสดงรับเชิญที่<strong>เทศกาลดนตรีนานาชาติเตเนรีเฟ</strong> สเปน และ<strong>ทัวร์ญี่ปุ่นปี 2024 (โกเบ·โอซาก้า)</strong> BOAZ ได้รับเลือกเป็น<strong>วงในสังกัดนครแทกูในปี 2023</strong>',
  s_conc:'คอนเสิร์ตประจำปี',s_tour:'ประเทศที่ไปแสดง',s_shows:'การแสดงรับเชิญ',
  f_name_t:'ชื่อวง',f_name:'Ensemble BOAZ',f_rep_t:'ผู้อำนวยการ',f_rep:'Lee Jung-min · Kang Kyung-shin',f_staff_t:'ฝ่ายธุรการ',f_staff:'Han Jeong-su',f_found_t:'ก่อตั้ง',f_found:'2014',f_comp_t:'องค์ประกอบ',f_comp:'วงเครื่องสาย (ไวโอลิน·วิโอลา·เชลโล·เปียโน·เพอร์คัชชัน)',f_desig_t:'การรับรอง',f_desig:'วงในสังกัดนครแทกู (2023)',
- hist_h2:'ประวัติ',sk_h2:'แกลเลอรี',mem_h2:'สมาชิก',
+ hist_h2:'ประวัติ',sk_h2:'การแสดง',mem_h2:'สมาชิก',
  b26:"<b>คอนเสิร์ตประจำปีครั้งที่ 6 'No.6'</b> (Suseong Artpia) · Lobby Concert 'Rhythm of the Lobby – Piazzolla' · <b>AMICONE with Ensemble BOAZ</b> · โครงการศิลปินรุ่นใหม่ Goryeong-in 'Never Ending Story'",b25:"<b>'Beyond Four Seasons'</b> (Gyeongju Arts Center) · 'Texture of Winter' · คอนเสิร์ตรำลึก Park Tae-jun",b24:"<b>คอนเสิร์ตประจำปีครั้งที่ 5 'THE BOAZ'</b> (Daegu Concert House) · <b>คอนเสิร์ตญี่ปุ่นครั้งแรก</b> (โกเบ·โอซาก้า)",b23:"<b>ได้รับเลือกเป็นวงในสังกัดนครแทกู</b> · เทศกาลดนตรีนานาชาติแทกู · ก่อตั้ง 'The BOAZ (คย็องบุก)'",b22:'ขยายสู่ระดับออร์เคสตรา · DSAC <b>Opera with BOAZ</b> (Dalseo Arts Center)',b21:"Daegu Artist Week <b>'Embrace (Pumda)'</b> (Daegu Concert House)",b20:'คอนเสิร์ตห้างชินเซกเย · โครงการศิลปิน Suseong Artpia',b19:"<b>'A Midsummer Night's Dream'</b> คอนเสิร์ตร่วมผลิต (Daegu Concert House)",b18:'รับเชิญแสดงที่<b>เทศกาลนานาชาติเตเนรีเฟ</b> สเปน',b17:"<b>คอนเสิร์ตประจำปีครั้งที่ 4 'LUXURY TIME'</b>",b16:"คอนเสิร์ตประจำปีครั้งที่ 3 'Track3' · ซีรีส์วันอังคาร Daegu Concert House",b15:'<b>คอนเสิร์ตเปิดตัวบัตรขายหมด</b> · รางวัลที่ 1 Global Competition · รางวัลนายกเทศมนตรีปูซาน',b14:'ก่อตั้ง Ensemble BOAZ',
  tl_more:'ดูประวัติทั้งหมด +',tl_less:'ย่อ −',pg_more:'ดูโปสเตอร์ทั้งหมด +',pg_less:'เฉพาะไฮไลท์ −',sk_note:'คลิกที่ภาพเพื่อขยาย',
  c_lede:'เมื่อคุณต้องการเวทีที่ทรงคุณค่า<br>BOAZ พร้อมอยู่เคียงข้างคุณ',c_desc:'คอนเสิร์ตที่จัดทำพิเศษ · งานองค์กรและสถาบัน · การแสดงเฉลิมฉลอง · เทศกาลดนตรี',
@@ -319,10 +396,10 @@ function setLang(l){
   if(_tlb&&_tl)_tlb.textContent=_tl.classList.contains('full')?d.tl_less:d.tl_more;
   const _pgb=document.getElementById('pgbtn');
   if(_pgb&&eg)_pgb.textContent=eg.classList.contains('show')?d.pg_less:d.pg_more;
-  renderExtras();
+  renderExtras();renderStage();
   const sel=document.getElementById('langSel');if(sel.value!==l)sel.value=l;
   try{localStorage.setItem('boaz-lang',l)}catch(e){}
 }
 buildSnapshot();
-renderExtras();
+renderExtras();renderStage();
 try{const saved=localStorage.getItem('boaz-lang');if(saved&&saved!=='ko')setLang(saved)}catch(e){}
