@@ -1,5 +1,5 @@
 const nav=document.getElementById('nav');
-addEventListener('scroll',()=>nav.classList.toggle('solid',scrollY>60),{passive:true});
+addEventListener('scroll',()=>nav.classList.toggle('solid',scrollY>40),{passive:true});
 
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target)}}),{threshold:.1});
 document.querySelectorAll('.rv').forEach(el=>io.observe(el));
@@ -170,32 +170,30 @@ function sndFadeTo(v,ms,done){if(!bgm)return;clearInterval(sndFade);const from=b
 function sndOn(){if(!bgm)return;bgm.volume=0;const pr=bgm.play();if(pr&&pr.catch)pr.catch(()=>{sndBtn&&sndBtn.classList.remove('on');const once=()=>{document.removeEventListener('pointerdown',once);sndOn()};document.addEventListener('pointerdown',once)});sndBtn&&sndBtn.classList.add('on');sndFadeTo(.12,3000);try{localStorage.setItem('boaz-snd','on')}catch(e){}}
 function sndOff(){if(!bgm)return;sndBtn&&sndBtn.classList.remove('on');sndFadeTo(0,900,()=>bgm.pause());try{localStorage.setItem('boaz-snd','off')}catch(e){}}
 if(sndBtn)sndBtn.addEventListener('click',()=>{(bgm.paused||sndFade&&bgm.volume<.05)?sndOn():sndOff()});
-const SL_CAPS=[['2024','Studio'],['2014','The Beginning'],['2014','The Beginning'],['2015','Ensemble BOAZ'],['2016','Lounge'],['2016','Studio'],['2022','With Orchestra'],['2023','With Orchestra'],['2024','Studio'],['2024','Studio']];
+const SL_CAPS=[['2024','스튜디오','Studio'],['2016','라운지','Lounge'],['2022','오케스트라와 함께','With Orchestra'],['2014','시작','The Beginning'],['2023','오케스트라와 함께','With Orchestra'],['2016','스튜디오','Studio'],['2014','시작','The Beginning'],['2015','앙상블 보아즈','Ensemble BOAZ']];
+let SL_I=0;
 (function(){
-  const box=document.getElementById('slides');if(!box)return;
-  const sls=[...box.querySelectorAll('.sl')],dots=document.getElementById('slDots'),cap=document.getElementById('slcap');
-  let i=0,timer=null;const DUR=7000;
-  sls.forEach((_,k)=>{const d=document.createElement('span');if(k===0)d.className='on';d.addEventListener('click',()=>go(k,true));dots.appendChild(d)});
-  function ensure(k){k=(k+sls.length)%sls.length;const b=sls[k].querySelector('.bd');if(b&&b.dataset.bg&&!b.style.backgroundImage)b.style.backgroundImage='url('+b.dataset.bg+')';const im=sls[k].querySelector('img');if(im&&im.dataset.src){im.src=im.dataset.src;delete im.dataset.src}}
-  ensure(0);ensure(1);
-  function go(n,manual){sls[i].classList.remove('on');dots.children[i].classList.remove('on');i=(n+sls.length)%sls.length;sls[i].classList.add('on');ensure(i+1);
-    const d=dots.children[i];d.classList.remove('on');void d.offsetWidth;d.classList.add('on');
-    if(cap&&SL_CAPS[i])cap.innerHTML='<b>'+SL_CAPS[i][1]+'</b><span>'+SL_CAPS[i][0]+' · Ensemble BOAZ</span>';
-    if(manual)restart()}
-  function restart(){clearInterval(timer);timer=setInterval(()=>go(i+1),DUR)}
-  document.getElementById('slPrev').addEventListener('click',()=>go(i-1,true));
-  document.getElementById('slNext').addEventListener('click',()=>go(i+1,true));
-  box.addEventListener('mouseenter',()=>{box.classList.add('paused');clearInterval(timer)});
-  box.addEventListener('mouseleave',()=>{box.classList.remove('paused');restart()});
+  const box=document.getElementById('frame');if(!box)return;
+  const imgs=[...box.querySelectorAll('img')];let timer=null;const DUR=7000;
+  function ensure(k){k=(k+imgs.length)%imgs.length;const im=imgs[k];if(im.dataset.src){im.src=im.dataset.src;delete im.dataset.src}}
+  ensure(1);
+  function go(n,manual){imgs[SL_I].classList.remove('on');SL_I=(n+imgs.length)%imgs.length;imgs[SL_I].classList.add('on');ensure(SL_I+1);slCap();
+    document.getElementById('slCnt').textContent=(SL_I+1)+' / '+imgs.length;if(manual)restart()}
+  function restart(){clearInterval(timer);timer=setInterval(()=>go(SL_I+1),DUR)}
+  document.getElementById('slPrev').addEventListener('click',()=>go(SL_I-1,true));
+  document.getElementById('slNext').addEventListener('click',()=>go(SL_I+1,true));
+  box.addEventListener('mouseenter',()=>clearInterval(timer));
+  box.addEventListener('mouseleave',()=>restart());
   let tx=null;box.addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
-  box.addEventListener('touchend',e=>{if(tx===null)return;const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50)go(dx<0?i+1:i-1,true);tx=null},{passive:true});
-  document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(i+1,true);if(e.key==='ArrowLeft')go(i-1,true)});
+  box.addEventListener('touchend',e=>{if(tx===null)return;const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50)go(dx<0?SL_I+1:SL_I-1,true);tx=null},{passive:true});
+  document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(SL_I+1,true);if(e.key==='ArrowLeft')go(SL_I-1,true)});
   document.addEventListener('visibilitychange',()=>{document.hidden?clearInterval(timer):restart()});
   window.slStart=restart;
 })();
+function slCap(){const n=document.getElementById('capN'),t=document.getElementById('capT');if(!n)return;const c=SL_CAPS[SL_I];n.textContent=c[0];t.textContent=(typeof LANG!=='undefined'&&LANG!=='ko')?c[2]:c[1]}
 (function(){
   const intro=document.getElementById('intro');
-  function open(withSound){intro.classList.remove('wait');intro.classList.add('done');window.slStart&&slStart();document.body.classList.add('ready');setTimeout(()=>intro.remove(),1500);try{sessionStorage.setItem('boaz-intro','1')}catch(e){}
+  function open(withSound){intro.classList.add('done');window.slStart&&slStart();document.body.classList.add('ready');setTimeout(()=>intro.remove(),1500);try{sessionStorage.setItem('boaz-intro','1')}catch(e){}
     if(withSound)sndOn()}
   if(intro){
     let seen=false;try{seen=sessionStorage.getItem('boaz-intro')==='1'}catch(e){}
@@ -204,8 +202,16 @@ const SL_CAPS=[['2024','Studio'],['2014','The Beginning'],['2014','The Beginning
       let pref='';try{pref=localStorage.getItem('boaz-snd')||''}catch(e){}
       if(pref!=='off'&&bgm){sndOn();setTimeout(()=>{if(bgm.paused){const h=document.getElementById('sndHint');if(h){h.classList.add('show');setTimeout(()=>h.classList.remove('show'),5000)}}},1200)}}
     else if(btn){btn.addEventListener('click',()=>open(true));}
-  }else{document.body.classList.add('ready');window.slStart&&slStart()}
+  }else{requestAnimationFrame(()=>document.body.classList.add('ready'));window.slStart&&slStart()}
 })();
+/* mobile menu */
+(function(){
+  const b=document.getElementById('burger'),m=document.getElementById('mnav');if(!b||!m)return;
+  b.addEventListener('click',()=>{m.classList.toggle('open');b.classList.toggle('x');document.body.style.overflow=m.classList.contains('open')?'hidden':''});
+})();
+/* staggered reveal for statement/ledger */
+const io2=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.querySelectorAll('.rv,.wipe').forEach((x,k)=>setTimeout(()=>x.classList.add('on'),k*160));io2.unobserve(e.target)}}),{threshold:.15});
+document.querySelectorAll('.state,.ledger').forEach(el=>{el.querySelectorAll('.rv').forEach(x=>io.unobserve(x));io2.observe(el)});
 
 /* ===================== i18n ===================== */
 let LANG='ko';
@@ -216,7 +222,7 @@ en:{
  ns_lab:'Latest',ns_h2:'Now On Stage',ns_all:'ALL VIDEOS →',ns_y:"2026 · 6th Annual Concert 'No.6'",ns_t:'M. Bruch — Piano Quintet in G minor',
  st_h2:'Live performance videos',st_f0:'All',st_f1:'Annual Concerts',st_f2:'Curated & Invited',st_more:'View all videos +',st_less:'Featured only −',st_yt:'YouTube channel →',st_note:'Click a card to play it right here · Source: YouTube',
  mem_q:'The moment eleven voices become a single breath',mem_lede:"In 2014, young musicians who met at Keimyung University came together under the name <b>'BOAZ'</b>.<br>Violin, viola, cello, piano, percussion — eleven different voices<br>breathing as one on stage.",exp6:'Live performance videos',
- n1:'About',n2:'History',n3:'Performances',n6:'On Stage',n4:'Members',n5:'Booking',
+ n1:'About',n2:'History',n3:'Performances',n6:'On Stage',n6m:'On Stage',n4:'Members',n5:'Booking',st_q:'On stage,<br>we build <b>the most solid sound</b>.',f_h:'Ensemble',sl_prev:'Prev',sl_next:'Next',
  h_sub:'A string ensemble of bold, vibrant young musicians',h_badge:'Designated Ensemble of Daegu Metropolitan City (2023)',
  a_h2:"Like our name — Hebrew for <b>'strength'</b> —<br>we craft the most solid sound<br>on stage.",
  a_p1:"<strong>Ensemble BOAZ</strong> began as a male string ensemble of Keimyung University graduates, opening with a sold-out debut concert in January 2015. With 1st prize at the Global Competition (chamber music) and the Busan Mayor's Award, the ensemble has grown through its annual concert series.",
@@ -275,7 +281,7 @@ en:{
  exp_h2:'Explore',exp_lead:'Discover Ensemble BOAZ',exp2:'From our 2014 founding to today',exp3:'Posters & moments from our stages',exp4:'The musicians of BOAZ',exp5:'Invite BOAZ to your stage',exp_view:'VIEW'
 },
 de:{
- n1:'Über uns',n2:'Geschichte',n3:'Aufführungen',n6:'On Stage',n4:'Mitglieder',n5:'Kontakt',
+ n1:'Über uns',n2:'Geschichte',n3:'Aufführungen',n6:'On Stage',n6m:'On Stage',n4:'Mitglieder',n5:'Kontakt',sl_prev:'Zurück',sl_next:'Weiter',
  h_sub:'Ein Streicherensemble junger, kraftvoller Musiker',h_badge:'Offizielles Ensemble der Stadt Daegu (2023)',
  a_h2:'Wie unser Name — hebräisch für <b>„Stärke“</b> —<br>formen wir den festesten Klang<br>auf der Bühne.',
  a_p1:'<strong>Ensemble BOAZ</strong> entstand als Streicherensemble von Absolventen der Keimyung-Universität und debütierte im Januar 2015 mit einem ausverkauften Konzert. Mit dem 1. Preis beim Global-Wettbewerb (Kammermusik) und dem Preis des Bürgermeisters von Busan wuchs das Ensemble durch seine jährliche Konzertreihe.',
@@ -292,7 +298,7 @@ de:{
  foot:'Verwaltung: Han Jeong-su +82-10-2870-9539 · sosages90@hotmail.com<br>Seit 2014 · Offizielles Ensemble der Stadt Daegu (2023) · © 2026 Ensemble BOAZ'
 },
 es:{
- n1:'Nosotros',n2:'Historia',n3:'Actuaciones',n6:'On Stage',n4:'Miembros',n5:'Contacto',
+ n1:'Nosotros',n2:'Historia',n3:'Actuaciones',n6:'On Stage',n6m:'On Stage',n4:'Miembros',n5:'Contacto',sl_prev:'Anterior',sl_next:'Siguiente',
  h_sub:'Un ensamble de cuerdas de músicos jóvenes y vibrantes',h_badge:'Conjunto designado por la Ciudad de Daegu (2023)',
  a_h2:"Como nuestro nombre — <b>'fuerza'</b> en hebreo —<br>creamos el sonido más sólido<br>del escenario.",
  a_p1:'<strong>Ensemble BOAZ</strong> nació como un ensamble de cuerdas de graduados de la Universidad Keimyung y debutó en enero de 2015 con un concierto con entradas agotadas. Con el 1er premio del Concurso Global (música de cámara) y el Premio del Alcalde de Busan, el conjunto ha crecido con su serie anual de conciertos.',
@@ -312,7 +318,7 @@ ja:{
  ns_lab:'Latest',ns_h2:'Now On Stage',ns_all:'ALL VIDEOS →',ns_y:"2026 · 第6回定期演奏会 'No.6'",ns_t:'ブルッフ — ピアノ五重奏曲 ト短調',
  st_h2:'舞台実況映像',st_f0:'すべて',st_f1:'定期演奏会',st_f2:'企画・招待',st_more:'すべての映像を見る +',st_less:'代表映像のみ −',st_yt:'YouTubeチャンネル →',st_note:'カードをクリックするとその場で再生されます · 出典: YouTube',
  mem_q:'十一の音が、ひとつの呼吸になる瞬間',mem_lede:"2014年、啓明大学校で出会った若い演奏家たちが<b>『BOAZ』</b>の名のもとに集まりました。<br>ヴァイオリン・ヴィオラ・チェロ・ピアノ・打楽器 — 異なる十一の音が<br>ひとつの呼吸で息づく舞台をつくります。",exp6:'舞台実況映像',
- n1:'紹介',n2:'沿革',n3:'公演',n6:'On Stage',n4:'メンバー',n5:'出演依頼',
+ n1:'紹介',n2:'沿革',n3:'公演',n6:'On Stage',n6m:'舞台実況',n4:'メンバー',n5:'出演依頼',st_q:'舞台の上で<br><b>最も揺るぎない音</b>を<br>作り続けます。',f_h:'団体情報',sl_prev:'前へ',sl_next:'次へ',
  h_sub:'力強く活気あふれる若手演奏家による弦楽アンサンブル',h_badge:'2023年 大邱広域市指定団体',
  a_h2:'ヘブライ語で<b>「強さ」</b>を意味する名のように、<br>舞台の上で最も揺るぎない音を<br>作り続けます。',
  a_p1:'<strong>Ensemble BOAZ</strong>は啓明大学校出身の男性弦楽アンサンブルとして始まり、2015年1月、全席完売の創団演奏会で初舞台を飾りました。グローバルコンクール室内楽部門1位、釜山市長賞などで実力を証明し、毎年の定期演奏会とともに成長してきました。',
@@ -359,7 +365,7 @@ zh:{
  ns_lab:'Latest',ns_h2:'Now On Stage',ns_all:'ALL VIDEOS →',ns_y:"2026 · 第6届定期音乐会 'No.6'",ns_t:'布鲁赫 — g小调钢琴五重奏',
  st_h2:'舞台实况视频',st_f0:'全部',st_f1:'定期音乐会',st_f2:'策划·邀请',st_more:'查看全部视频 +',st_less:'仅看代表视频 −',st_yt:'YouTube频道 →',st_note:'点击卡片即可在此播放 · 来源: YouTube',
  mem_q:'十一种声音，一次呼吸',mem_lede:"2014年，在启明大学相遇的年轻演奏家们以<b>'BOAZ'</b>之名聚在一起。<br>小提琴、中提琴、大提琴、钢琴、打击乐 — 十一种不同的声音<br>在舞台上化为同一次呼吸。",exp6:'舞台实况视频',
- n1:'简介',n2:'沿革',n3:'演出',n6:'On Stage',n4:'成员',n5:'演出洽询',
+ n1:'简介',n2:'沿革',n3:'演出',n6:'On Stage',n6m:'舞台实况',n4:'成员',n5:'演出洽询',st_q:'在舞台上<br>打造<b>最坚实的声音</b>。',f_h:'团体信息',sl_prev:'上一张',sl_next:'下一张',
  h_sub:'由充满活力的年轻演奏家组成的弦乐团',h_badge:'2023年大邱广域市指定团体',
  a_h2:'正如希伯来语中意为<b>“力量”</b>的名字，<br>我们在舞台上奏出<br>最坚实的声音。',
  a_p1:'<strong>Ensemble BOAZ</strong>由启明大学毕业生组成的男性弦乐团起步，2015年1月以全场售罄的创团音乐会登上首个舞台。曾获全球音乐比赛室内乐组第一名、釜山市长奖等，通过每年的定期音乐会不断成长。',
@@ -443,7 +449,7 @@ function setLang(l){
   if(_tlb&&_tl)_tlb.textContent=_tl.classList.contains('full')?d.tl_less:d.tl_more;
   const _pgb=document.getElementById('pgbtn');
   if(_pgb&&eg)_pgb.textContent=eg.classList.contains('show')?d.pg_less:d.pg_more;
-  renderExtras();renderStage();
+  renderExtras();renderStage();if(typeof slCap==='function')slCap();
   const sel=document.getElementById('langSel');if(sel.value!==l)sel.value=l;
   try{localStorage.setItem('boaz-lang',l)}catch(e){}
 }
