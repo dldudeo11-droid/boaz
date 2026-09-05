@@ -167,7 +167,7 @@ function closeVideo(){
 const bgm=document.getElementById('bgm'),sndBtn=document.getElementById('sndBtn');
 let sndFade=null;
 function sndFadeTo(v,ms,done){if(!bgm)return;clearInterval(sndFade);const from=bgm.volume,t0=performance.now();sndFade=setInterval(()=>{const p=Math.min(1,(performance.now()-t0)/ms);bgm.volume=from+(v-from)*p;if(p>=1){clearInterval(sndFade);done&&done()}},50)}
-function sndOn(){if(!bgm)return;bgm.volume=0;const pr=bgm.play();if(pr&&pr.catch)pr.catch(()=>{sndBtn&&sndBtn.classList.remove('on');const once=()=>{document.removeEventListener('pointerdown',once);sndOn()};document.addEventListener('pointerdown',once)});sndBtn&&sndBtn.classList.add('on');sndFadeTo(.07,3000);try{localStorage.setItem('boaz-snd','on')}catch(e){}}
+function sndOn(){if(!bgm)return;bgm.volume=0;const pr=bgm.play();if(pr&&pr.catch)pr.catch(()=>{sndBtn&&sndBtn.classList.remove('on');const once=()=>{document.removeEventListener('pointerdown',once);sndOn()};document.addEventListener('pointerdown',once)});sndBtn&&sndBtn.classList.add('on');sndFadeTo(.12,3000);try{localStorage.setItem('boaz-snd','on')}catch(e){}}
 function sndOff(){if(!bgm)return;sndBtn&&sndBtn.classList.remove('on');sndFadeTo(0,900,()=>bgm.pause());try{localStorage.setItem('boaz-snd','off')}catch(e){}}
 if(sndBtn)sndBtn.addEventListener('click',()=>{(bgm.paused||sndFade&&bgm.volume<.05)?sndOn():sndOff()});
 const SL_CAPS=[['2024','Studio'],['2014','The Beginning'],['2014','The Beginning'],['2015','Ensemble BOAZ'],['2016','Lounge'],['2016','Studio'],['2022','With Orchestra'],['2023','With Orchestra'],['2024','Studio'],['2024','Studio']];
@@ -176,7 +176,9 @@ const SL_CAPS=[['2024','Studio'],['2014','The Beginning'],['2014','The Beginning
   const sls=[...box.querySelectorAll('.sl')],dots=document.getElementById('slDots'),cap=document.getElementById('slcap');
   let i=0,timer=null;const DUR=7000;
   sls.forEach((_,k)=>{const d=document.createElement('span');if(k===0)d.className='on';d.addEventListener('click',()=>go(k,true));dots.appendChild(d)});
-  function go(n,manual){sls[i].classList.remove('on');dots.children[i].classList.remove('on');i=(n+sls.length)%sls.length;sls[i].classList.add('on');
+  function ensure(k){k=(k+sls.length)%sls.length;const b=sls[k].querySelector('.bd');if(b&&b.dataset.bg&&!b.style.backgroundImage)b.style.backgroundImage='url('+b.dataset.bg+')';const im=sls[k].querySelector('img');if(im&&im.dataset.src){im.src=im.dataset.src;delete im.dataset.src}}
+  ensure(0);ensure(1);
+  function go(n,manual){sls[i].classList.remove('on');dots.children[i].classList.remove('on');i=(n+sls.length)%sls.length;sls[i].classList.add('on');ensure(i+1);
     const d=dots.children[i];d.classList.remove('on');void d.offsetWidth;d.classList.add('on');
     if(cap&&SL_CAPS[i])cap.innerHTML='<b>'+SL_CAPS[i][1]+'</b><span>'+SL_CAPS[i][0]+' · Ensemble BOAZ</span>';
     if(manual)restart()}
@@ -189,20 +191,20 @@ const SL_CAPS=[['2024','Studio'],['2014','The Beginning'],['2014','The Beginning
   box.addEventListener('touchend',e=>{if(tx===null)return;const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50)go(dx<0?i+1:i-1,true);tx=null},{passive:true});
   document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(i+1,true);if(e.key==='ArrowLeft')go(i-1,true)});
   document.addEventListener('visibilitychange',()=>{document.hidden?clearInterval(timer):restart()});
-  restart();
+  window.slStart=restart;
 })();
 (function(){
   const intro=document.getElementById('intro');
-  function open(withSound){intro.classList.remove('wait');intro.classList.add('done');document.body.classList.add('ready');setTimeout(()=>intro.remove(),1500);try{sessionStorage.setItem('boaz-intro','1')}catch(e){}
+  function open(withSound){intro.classList.remove('wait');intro.classList.add('done');window.slStart&&slStart();document.body.classList.add('ready');setTimeout(()=>intro.remove(),1500);try{sessionStorage.setItem('boaz-intro','1')}catch(e){}
     if(withSound)sndOn()}
   if(intro){
     let seen=false;try{seen=sessionStorage.getItem('boaz-intro')==='1'}catch(e){}
     const btn=document.getElementById('enterBtn');
-    if(seen){intro.remove();document.body.classList.add('ready','no-intro');
+    if(seen){intro.remove();document.body.classList.add('ready','no-intro');window.slStart&&slStart();
       let pref='';try{pref=localStorage.getItem('boaz-snd')||''}catch(e){}
       if(pref!=='off'&&bgm){sndOn();setTimeout(()=>{if(bgm.paused){const h=document.getElementById('sndHint');if(h){h.classList.add('show');setTimeout(()=>h.classList.remove('show'),5000)}}},1200)}}
     else if(btn){btn.addEventListener('click',()=>open(true));}
-  }else{document.body.classList.add('ready')}
+  }else{document.body.classList.add('ready');window.slStart&&slStart()}
 })();
 
 /* ===================== i18n ===================== */
