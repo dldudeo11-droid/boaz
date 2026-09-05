@@ -167,9 +167,15 @@ function closeVideo(){
 const bgm=document.getElementById('bgm'),sndBtn=document.getElementById('sndBtn');
 let sndFade=null;
 function sndFadeTo(v,ms,done){if(!bgm)return;clearInterval(sndFade);const from=bgm.volume,t0=performance.now();sndFade=setInterval(()=>{const p=Math.min(1,(performance.now()-t0)/ms);bgm.volume=from+(v-from)*p;if(p>=1){clearInterval(sndFade);done&&done()}},50)}
-function sndOn(){if(!bgm)return;bgm.volume=0;const pr=bgm.play();if(pr&&pr.catch)pr.catch(()=>{sndBtn&&sndBtn.classList.remove('on');const once=()=>{document.removeEventListener('pointerdown',once);sndOn()};document.addEventListener('pointerdown',once)});sndBtn&&sndBtn.classList.add('on');sndFadeTo(.12,3000);try{localStorage.setItem('boaz-snd','on')}catch(e){}}
+function sndOn(quick){if(!bgm)return;bgm.volume=0;const pr=bgm.play();if(pr&&pr.catch)pr.catch(()=>{sndBtn&&sndBtn.classList.remove('on');const once=()=>{document.removeEventListener('pointerdown',once);sndOn()};document.addEventListener('pointerdown',once)});sndBtn&&sndBtn.classList.add('on');sndFadeTo(.12,quick?800:3000);try{localStorage.setItem('boaz-snd','on')}catch(e){}}
 function sndOff(){if(!bgm)return;sndBtn&&sndBtn.classList.remove('on');sndFadeTo(0,900,()=>bgm.pause());try{localStorage.setItem('boaz-snd','off')}catch(e){}}
 if(sndBtn)sndBtn.addEventListener('click',()=>{(bgm.paused||sndFade&&bgm.volume<.05)?sndOn():sndOff()});
+if(bgm){bgm.addEventListener('timeupdate',()=>{try{sessionStorage.setItem('boaz-t',bgm.currentTime)}catch(e){}});
+  window.addEventListener('pagehide',()=>{try{sessionStorage.setItem('boaz-t',bgm.paused?'':bgm.currentTime)}catch(e){}})}
+function sndResume(){if(!bgm)return;let pref='',t='';try{pref=localStorage.getItem('boaz-snd')||'';t=sessionStorage.getItem('boaz-t')||''}catch(e){}
+  if(pref==='off'||t==='')return;const tt=parseFloat(t)||0;const seek=()=>{try{bgm.currentTime=tt}catch(e){}};
+  if(bgm.readyState>=1)seek();else bgm.addEventListener('loadedmetadata',seek,{once:true});
+  sndOn(true);setTimeout(()=>{if(bgm.paused){const h=document.getElementById('sndHint');if(h){h.classList.add('show');setTimeout(()=>h.classList.remove('show'),5000)}}},1200)}
 const SL_CAPS=[['2024','스튜디오','Studio'],['2016','라운지','Lounge'],['2022','오케스트라와 함께','With Orchestra'],['2014','시작','The Beginning'],['2023','오케스트라와 함께','With Orchestra'],['2016','스튜디오','Studio'],['2014','시작','The Beginning'],['2015','앙상블 보아즈','Ensemble BOAZ']];
 let SL_I=0;
 (function(){
@@ -199,10 +205,9 @@ function slCap(){const n=document.getElementById('capN'),t=document.getElementBy
     let seen=false;try{seen=sessionStorage.getItem('boaz-intro')==='1'}catch(e){}
     const btn=document.getElementById('enterBtn');
     if(seen){intro.remove();document.body.classList.add('ready','no-intro');window.slStart&&slStart();
-      let pref='';try{pref=localStorage.getItem('boaz-snd')||''}catch(e){}
-      if(pref!=='off'&&bgm){sndOn();setTimeout(()=>{if(bgm.paused){const h=document.getElementById('sndHint');if(h){h.classList.add('show');setTimeout(()=>h.classList.remove('show'),5000)}}},1200)}}
+      sndResume()}
     else if(btn){btn.addEventListener('click',()=>open(true));}
-  }else{requestAnimationFrame(()=>document.body.classList.add('ready'));window.slStart&&slStart()}
+  }else{requestAnimationFrame(()=>document.body.classList.add('ready'));window.slStart&&slStart();sndResume()}
 })();
 /* mobile menu */
 (function(){

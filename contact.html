@@ -25,7 +25,7 @@
   <div class="wrap">
     <a href="./" class="brand"><img src="assets/logo_ink.png" alt="Ensemble BOAZ"></a>
     <ul id="navlinks"><li><a href="./" data-i18n="n1">소개</a></li><li><a href="history.html" data-i18n="n2">연혁</a></li><li><a href="sketches.html" data-i18n="n3">공연</a></li><li><a href="stage.html" data-i18n="n6">On Stage</a></li><li><a href="members.html" data-i18n="n4">단원</a></li><li><a href="contact.html" class="active" data-i18n="n5">섭외 문의</a></li></ul>
-    <div class="tools"><select class="lang" id="langSel" onchange="setLang(this.value)" aria-label="Language">
+    <div class="tools"><button class="snd" id="sndBtn" type="button" aria-label="Sound" title="Sound"><i></i><i></i><i></i><i></i></button><select class="lang" id="langSel" onchange="setLang(this.value)" aria-label="Language">
         <option value="ko">한국어</option><option value="en">English</option><option value="de">Deutsch</option><option value="es">Español</option><option value="ja">日本語</option><option value="zh">中文</option><option value="th">ไทย</option>
       </select><button class="burger" id="burger" type="button" aria-label="Menu"><i></i><i></i></button></div>
   </div>
@@ -73,6 +73,8 @@
   </div>
 </footer>
 
-<script src="assets/app.js?v=37"></script>
+<div class="snd-hint" id="sndHint">♪ 소리를 켜려면 상단 버튼을 누르세요</div>
+<audio id="bgm" loop preload="auto" src="assets/bgm.mp3"></audio>
+<script src="assets/app.js?v=38"></script>
 </body>
 </html>
