@@ -374,3 +374,62 @@ footer p{font-size:.74rem;color:var(--w-dim);letter-spacing:.06em}
 .member .photo{position:relative}
 .member .photo img.alt{position:absolute;inset:0;width:100%;height:100%;opacity:0;filter:grayscale(0);transition:opacity .7s ease,transform .9s cubic-bezier(.16,.84,.3,1)}
 .member:hover .photo img.alt{opacity:1;transform:scale(1.04)}
+
+/* ===== v26 (2026-09-04): ENTER 커튼 + 배경음악 + 풀스크린 슬라이드 홈 ===== */
+#intro.wait{transition:none}
+#intro .enter{margin-top:38px;font-family:'Cormorant Garamond',serif;font-size:.82rem;letter-spacing:.5em;text-indent:.5em;color:#fff;background:none;border:1px solid rgba(255,255,255,.55);padding:14px 40px;cursor:pointer;opacity:0;animation:fadeUp 1s 1.5s ease both;transition:background .4s,border-color .4s}
+#intro .enter:hover{background:var(--gold);border-color:var(--gold)}
+#intro .hint{font-size:.66rem;letter-spacing:.25em;color:#6f6a60;margin-top:16px;opacity:0;animation:fadeUp 1s 1.9s ease both}
+.nav-snd{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:1px solid var(--hairline-d);color:var(--w-dim);cursor:pointer;background:none;transition:color .3s,border-color .3s;padding:0}
+.nav-snd:hover{color:#fff;border-color:#fff}
+.nav-snd i{display:block;width:2px;background:currentColor;margin:0 1px;height:6px;border-radius:1px}
+.nav-snd.on i{animation:eq 1s ease-in-out infinite}
+.nav-snd.on i:nth-child(2){animation-delay:.2s}.nav-snd.on i:nth-child(3){animation-delay:.4s}.nav-snd.on i:nth-child(4){animation-delay:.1s}
+@keyframes eq{0%,100%{height:5px}50%{height:14px}}
+.nav-snd.on{color:var(--gold-soft);border-color:var(--gold-soft)}
+
+.slides{position:relative;height:100vh;height:100svh;min-height:560px;overflow:hidden;background:#000}
+.slides .sl{position:absolute;inset:0;opacity:0;transition:opacity 1.6s ease}
+.slides .sl img{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;object-position:center;transform:scale(1.03)}
+.slides .sl .bd{position:absolute;inset:-6%;background-size:cover;background-position:center;filter:blur(28px) brightness(.45);z-index:0}
+.slides .sl.on{opacity:1;z-index:1}
+.slides .sl.on img{animation:kbs 7.5s linear both}
+@keyframes kbs{from{transform:scale(1.03)}to{transform:scale(1)}}
+.slides .shade{position:absolute;inset:0;z-index:2;background:linear-gradient(180deg,rgba(16,16,16,.45) 0%,rgba(16,16,16,0) 26%,rgba(16,16,16,0) 62%,rgba(16,16,16,.78) 100%)}
+.slides .sl-inner{position:absolute;inset:auto 0 0;z-index:3;padding:0 0 8vh}
+.slides .kicker{font-size:.72rem;letter-spacing:.55em;color:#d8d2c5;margin-bottom:16px;display:flex;align-items:center;gap:18px}
+.slides .kicker::before{content:'';width:48px;height:1px;background:var(--gold-soft)}
+.slides .wm{font-family:'Cormorant Garamond',serif;font-weight:400;color:#fff;font-size:clamp(3rem,8vw,6.4rem);line-height:.95;letter-spacing:.06em}
+.slides .wm .thin{display:block;font-size:clamp(.9rem,1.8vw,1.3rem);letter-spacing:.65em;font-weight:300;color:#cfc9bb;margin-bottom:12px}
+.slides .sub{font-family:'Noto Serif KR',serif;font-size:1.02rem;color:#e6e0d2;letter-spacing:.08em;margin-top:22px}
+.slides .cap{position:absolute;right:34px;bottom:8vh;z-index:3;text-align:right;font-family:'Cormorant Garamond',serif;font-style:italic;color:#bfb7a6;font-size:.95rem;letter-spacing:.06em}
+.slides .cap b{display:block;font-style:normal;font-weight:400;color:var(--gold-soft);letter-spacing:.3em;font-size:.72rem;margin-bottom:4px}
+.slides .arr{position:absolute;top:50%;transform:translateY(-50%);z-index:4;width:52px;height:52px;border:1px solid rgba(255,255,255,.35);background:rgba(16,16,16,.25);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .3s,border-color .3s;backdrop-filter:blur(3px)}
+.slides .arr:hover{background:var(--gold);border-color:var(--gold)}
+.slides .arr.l{left:26px}.slides .arr.r{right:26px}
+.slides .arr svg{width:18px;height:18px}
+.slides .dots{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);z-index:4;display:flex;gap:10px}
+.slides .dots span{width:28px;height:2px;background:rgba(255,255,255,.3);cursor:pointer;position:relative;overflow:hidden}
+.slides .dots span::after{content:'';position:absolute;inset:0;background:var(--gold-soft);transform:scaleX(0);transform-origin:left}
+.slides .dots span.on::after{animation:bar 7s linear both}
+@keyframes bar{to{transform:none}}
+.slides.paused .dots span.on::after{animation-play-state:paused}
+.slides.paused .sl.on img{animation-play-state:paused}
+.slides .snd-hint{position:absolute;left:50%;top:104px;transform:translateX(-50%);z-index:4;font-size:.7rem;letter-spacing:.3em;color:#cfc9bb;background:rgba(16,16,16,.5);padding:8px 18px;border:1px solid rgba(255,255,255,.2);opacity:0;transition:opacity .6s;pointer-events:none}
+.slides .snd-hint.show{opacity:1}
+
+.about2{padding:120px 0 100px}
+.about2 .grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start}
+.about2 h2{font-size:clamp(1.7rem,3.2vw,2.5rem);line-height:1.6;letter-spacing:.02em;margin-top:26px;word-break:keep-all}
+.about2 h2 b{font-weight:600;color:var(--gold)}
+.about2 .body{padding-top:20px}
+.about2 .body p{color:var(--ink-soft);margin-bottom:1.4em;font-size:.98rem}
+.about2 .body strong{color:var(--ink);font-weight:500}
+.about2 .stats{margin-top:70px}
+.about2 .more{display:inline-block;margin-top:6px;font-size:.74rem;letter-spacing:.3em;color:var(--gold);border-bottom:1px solid var(--gold);padding-bottom:4px}
+@media(max-width:1100px){.about2 .grid{grid-template-columns:1fr;gap:30px}.slides .cap{display:none}.slides .arr{width:42px;height:42px}.slides .arr.l{left:12px}.slides .arr.r{right:12px}}
+@media(max-width:560px){.slides{min-height:0}.slides .sl-inner{padding-bottom:12vh}.slides .arr{top:auto;bottom:70px;transform:none}.slides .dots{bottom:44px}}
+@media(prefers-reduced-motion:reduce){.slides .sl.on img{animation:none}.slides .dots span.on::after{animation:none;transform:none}}
+
+/* v26d: 큰 화면에선 가로 사진을 꽉 채우고(살짝만 잘림), 세로 사진·휴대폰은 전체 노출 */
+@media(min-width:1100px){.slides .sl:not(.por) img{object-fit:cover;object-position:center 35%}}
