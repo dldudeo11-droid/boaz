@@ -260,3 +260,39 @@ footer .fine{font-size:.74rem;color:var(--slate2);width:100%;margin-top:16px;lin
 }
 @media(max-width:480px){.vcard{grid-template-columns:100px 1fr}.vcard .t{font-size:.84rem}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.hero h1,.hero .lede,.hero .frame,.hero .cap,.hero .vert,.rv,.wipe,.ph .rule,.hero .rule{opacity:1;transform:none;clip-path:none}#intro{display:none}}
+
+/* ---------- motion layer (v32: GSAP + Lenis, see assets/motion.js) ---------- */
+html.lenis,html.lenis body{height:auto}
+html.lenis{scroll-behavior:auto}
+.lenis.lenis-stopped{overflow:hidden}
+nav{transition:background .45s,padding .45s,border-color .45s,transform .55s cubic-bezier(.16,.84,.3,1)}
+nav.hide{transform:translateY(-100%)}
+#pt{position:fixed;inset:0;z-index:900;background:var(--ice);pointer-events:none;display:none}
+#pt.on{display:block}
+#cur{position:fixed;left:0;top:0;z-index:2000;pointer-events:none;width:34px;height:34px;margin:-17px 0 0 -17px;border:1px solid var(--slate2);border-radius:50%;opacity:0;transition:opacity .3s,width .35s,height .35s,margin .35s,border-color .35s,background .35s}
+#cur.v{opacity:1}
+#cur.h{width:64px;height:64px;margin:-32px 0 0 -32px;border-color:var(--ink);background:rgba(23,25,26,.05)}
+#cur i{position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px 0 0 -2px;background:var(--ink);border-radius:50%}
+html.has-cur,html.has-cur a,html.has-cur button,html.has-cur select,html.has-cur .frame,html.has-cur .pcard,html.has-cur .player,html.has-cur .vcard,html.has-cur .filters span{cursor:none}
+.hero canvas.strings{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.hero .wrap{z-index:1}
+.hero .wmw{position:absolute;left:-6%;top:26%;width:70vw;max-width:980px;pointer-events:none;z-index:0}
+.hero .wmw .wm{position:static;width:100%;left:auto;top:auto}
+.marq{border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;padding:16px 0;background:var(--ice)}
+.marq .track{display:flex;white-space:nowrap;width:max-content;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.05rem;letter-spacing:.22em;color:var(--slate2)}
+.marq .track span{padding:0 30px;display:inline-flex;align-items:center}
+.marq .track span::after{content:'';width:5px;height:5px;border-radius:50%;background:var(--mist);margin-left:60px}
+.state .q .w{display:inline-block}
+.rv.gm,.wipe.gm{opacity:1;transform:none;clip-path:none;transition:none!important}
+.gm.rv.d1,.gm.rv.d2,.gm.rv.d3{transition:none!important}
+.ph .en .c{display:inline-block;overflow:hidden;vertical-align:bottom;padding-bottom:.08em}
+.ph .en .c i{display:inline-block;font-style:italic}
+.ens-band .band{overflow:hidden}
+.ens-band .band img{transform:scale(1.18)}
+.member .photo{will-change:transform}
+@media(max-width:900px){.marq .track{font-size:.9rem}.hero .wmw{width:120vw;left:-30%;top:10%}}
+@media(prefers-reduced-motion:reduce){#cur,#pt,.hero canvas.strings{display:none!important}}
+.hero .scue{position:absolute;right:clamp(20px,4vw,48px);bottom:34px;display:flex;flex-direction:column;align-items:center;gap:10px;font-family:'Cormorant Garamond',serif;font-size:.62rem;letter-spacing:.4em;text-indent:.4em;color:var(--slate2);z-index:1}
+.hero .scue i{width:1px;height:46px;background:var(--slate);display:block;transform-origin:top;animation:cue 2.2s cubic-bezier(.77,0,.18,1) infinite}
+@keyframes cue{0%{transform:scaleY(0);transform-origin:top}45%{transform:scaleY(1);transform-origin:top}55%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+@media(max-width:900px){.hero .scue{display:none}}
