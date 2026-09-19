@@ -1,5 +1,9 @@
+/* app.js runs inside a function so motion.js can re-run it after swapping page content (v41) */
+(function(){
+if(window.__pageAC)window.__pageAC.abort();const AC=window.__pageAC=new AbortController();window.slStart=null;
+const docOn=(t,f,o)=>document.addEventListener(t,f,Object.assign({signal:AC.signal},o||{}));
 const nav=document.getElementById('nav');
-addEventListener('scroll',()=>nav.classList.toggle('solid',scrollY>40),{passive:true});
+addEventListener('scroll',()=>nav.classList.toggle('solid',scrollY>40),{passive:true,signal:AC.signal});
 
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target)}}),{threshold:.1});
 document.querySelectorAll('.rv').forEach(el=>io.observe(el));
@@ -77,7 +81,7 @@ function bindLightbox(){
   });
 }
 bindLightbox();
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(lb)lb.classList.remove('open');closeVideo()}});
+docOn('keydown',e=>{if(e.key==='Escape'){if(lb)lb.classList.remove('open');closeVideo()}});
 
 function toggleTimeline(){
   const tl=document.getElementById('timeline'),btn=document.getElementById('tlbtn'),d=DICT();
@@ -172,9 +176,9 @@ function sndOn(quick){if(!bgm)return;bgm.volume=quick?.12:0;const pr=bgm.play();
 function sndOff(){if(!bgm)return;sndBtn&&sndBtn.classList.remove('on');sndFadeTo(0,900,()=>bgm.pause());try{localStorage.setItem('boaz-snd','off')}catch(e){}}
 if(sndBtn)sndBtn.addEventListener('click',()=>{(bgm.paused||sndFade&&bgm.volume<.05)?sndOn():sndOff()});
 function sndSave(){try{sessionStorage.setItem('boaz-t',bgm.paused?'':bgm.currentTime);sessionStorage.setItem('boaz-at',Date.now())}catch(e){}}
-if(bgm){bgm.addEventListener('timeupdate',sndSave);window.addEventListener('pagehide',sndSave);
-  document.querySelectorAll('a[href]').forEach(a=>a.addEventListener('click',sndSave))}
-function sndResume(){if(!bgm)return;let pref='',t='';try{pref=localStorage.getItem('boaz-snd')||'';t=sessionStorage.getItem('boaz-t')||''}catch(e){}
+if(bgm&&!bgm.dataset.bound){bgm.dataset.bound='1';bgm.addEventListener('timeupdate',sndSave);window.addEventListener('pagehide',sndSave)}
+if(bgm)document.querySelectorAll('a[href]').forEach(a=>a.addEventListener('click',sndSave));
+function sndResume(){if(!bgm||!bgm.paused)return;let pref='',t='';try{pref=localStorage.getItem('boaz-snd')||'';t=sessionStorage.getItem('boaz-t')||''}catch(e){}
   if(pref==='off'||t==='')return;let at=0;try{at=parseFloat(sessionStorage.getItem('boaz-at'))||0}catch(e){}
   const gap=at?Math.min(8,Math.max(0,(Date.now()-at)/1000)):0;const tt=(parseFloat(t)||0)+gap;const seek=()=>{try{bgm.currentTime=bgm.duration?tt%bgm.duration:tt}catch(e){}};
   if(bgm.readyState>=1)seek();else bgm.addEventListener('loadedmetadata',seek,{once:true});
@@ -195,9 +199,9 @@ let SL_I=0;
   box.addEventListener('mouseleave',()=>restart());
   let tx=null;box.addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
   box.addEventListener('touchend',e=>{if(tx===null)return;const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50)go(dx<0?SL_I+1:SL_I-1,true);tx=null},{passive:true});
-  document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(SL_I+1,true);if(e.key==='ArrowLeft')go(SL_I-1,true)});
-  document.addEventListener('visibilitychange',()=>{document.hidden?clearInterval(timer):restart()});
-  window.slStart=restart;
+  docOn('keydown',e=>{if(e.key==='ArrowRight')go(SL_I+1,true);if(e.key==='ArrowLeft')go(SL_I-1,true)});
+  docOn('visibilitychange',()=>{document.hidden?clearInterval(timer):restart()});
+  window.slStart=restart;AC.signal.addEventListener('abort',()=>{clearInterval(timer);if(window.slStart===restart)window.slStart=null});
 })();
 function slCap(){const n=document.getElementById('capN'),t=document.getElementById('capT');if(!n)return;const c=SL_CAPS[SL_I];n.textContent=c[0];t.textContent=(typeof LANG!=='undefined'&&LANG!=='ko')?c[2]:c[1]}
 (function(){
@@ -464,3 +468,5 @@ function setLang(l){
 buildSnapshot();
 renderExtras();renderStage();
 try{const saved=localStorage.getItem('boaz-lang');if(saved&&saved!=='ko')setLang(saved)}catch(e){}
+Object.assign(window,{setLang,togglePosters,toggleTimeline,toggleVideos,sendMail,openVideo,closeVideo,renderStage,renderExtras,slCap,sndOn,sndOff});
+})();
