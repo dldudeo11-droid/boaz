@@ -94,6 +94,10 @@ function page(){
       gsap.to($$('.l > span',h1),{y:0,duration:1.6,ease:'power3.out',stagger:.22,delay:document.body.classList.contains('ready')?.3:1.0})}
     lines();var ls=$('#langSel');if(ls)ls.addEventListener('change',function(){setTimeout(lines,0)},sig);
     if(!document.body.classList.contains('ready')){var mo=new MutationObserver(function(){if(document.body.classList.contains('ready')){mo.disconnect();$$('.l > span',h1).forEach(function(s){gsap.set(s,{y:'110%'})});gsap.to($$('.l > span',h1),{y:0,duration:1.6,ease:'power3.out',stagger:.22,delay:.4})}});mo.observe(document.body,{attributes:true,attributeFilter:['class']})}
+    /* eyebrow ticker: slow drift, nudged by scroll speed */
+    var tk=$('#tk');
+    if(tk){var tkt=gsap.to(tk,{xPercent:-50,ease:'none',duration:wide?46:30,repeat:-1});
+      ScrollTrigger.create({onUpdate:function(st){tkt.timeScale(Math.min(4,1+Math.abs(st.getVelocity())/600));gsap.to(tkt,{timeScale:1,duration:1.6,overwrite:true,ease:'power2.out'})}})}
     /* photos: slow breathing crossfade every 8s */
     var imgs=$$('#ph img'),k=0;
     function cap(im){var en=document.documentElement.lang!=='ko',n=$('#capN'),t=$('#capT');if(!n)return;gsap.to([n,t],{opacity:0,duration:.6,onComplete:function(){n.textContent=im.dataset.y;t.textContent=en?im.dataset.en:im.dataset.ko;gsap.to([n,t],{opacity:1,duration:1.2})}})}

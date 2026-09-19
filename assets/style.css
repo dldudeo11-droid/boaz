@@ -76,8 +76,12 @@ nav .burger.x i{top:16px;transform:rotate(45deg)}nav .burger.x i+i{transform:rot
 .hero3 .ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%;opacity:0;filter:contrast(.98) brightness(1.03)}
 .hero3 .ph img.on{opacity:1}
 .hero3 .wash{position:absolute;inset:0;background:linear-gradient(to top,rgba(245,242,236,.96) 0%,rgba(245,242,236,.55) 26%,rgba(245,242,236,0) 55%),linear-gradient(to bottom,rgba(245,242,236,.55) 0%,rgba(245,242,236,0) 22%)}
-.hero3 .txt{position:absolute;left:clamp(24px,5vw,72px);right:clamp(24px,5vw,72px);bottom:9vh;display:grid;grid-template-columns:1fr auto;align-items:end;gap:40px}
+.hero3 .txt{position:absolute;left:clamp(24px,5vw,72px);right:clamp(24px,5vw,72px);bottom:calc(6vh + 52px);display:grid;grid-template-columns:1fr auto;align-items:end;gap:40px}
 .hero3 .eyebrow,.hero3 .meta{opacity:0;transition:opacity 1.4s 1.2s}
+.hero3 .eyebrow{position:absolute;left:0;right:0;bottom:0;overflow:hidden;padding:15px clamp(24px,5vw,72px);border-top:1px solid var(--line);background:rgba(245,242,236,.55);-webkit-mask-image:linear-gradient(to right,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(to right,transparent,#000 6%,#000 94%,transparent)}
+.hero3 .eyebrow .tk{display:flex;width:max-content;white-space:nowrap;will-change:transform}
+.hero3 .eyebrow .tk span{display:inline-flex;align-items:center;padding-right:26px}
+.hero3 .eyebrow .tk span::after{content:'';width:3px;height:3px;border-radius:50%;background:var(--slate);margin-left:26px;opacity:.7}
 .ready .hero3 .eyebrow,.ready .hero3 .meta{opacity:1}
 .hero3 h1{font-family:'Hahmlet',serif;font-weight:300;font-size:clamp(1.7rem,3.3vw,3.2rem);line-height:1.5;letter-spacing:-.01em;word-break:keep-all;max-width:24ch;margin-top:22px}
 .hero3 h1 b{font-weight:400;color:var(--ink)}
@@ -85,7 +89,7 @@ nav .burger.x i{top:16px;transform:rotate(45deg)}nav .burger.x i+i{transform:rot
 .hero3 h1 .l span{display:block;transform:translateY(110%)}
 .hero3 .meta{text-align:right;line-height:2.2}
 .hero3 .meta .y{font-family:'Cormorant Garamond',serif;font-size:1.05rem;letter-spacing:.2em;color:var(--ink)}
-.hero3 .cue{position:absolute;left:50%;bottom:26px;width:1px;height:44px;background:var(--slate);transform-origin:top;animation:cue3 2.6s cubic-bezier(.77,0,.18,1) infinite;opacity:0;transition:opacity 1s 2s}
+.hero3 .cue{position:absolute;right:clamp(24px,5vw,72px);bottom:70px;width:1px;height:44px;background:var(--slate);transform-origin:top;animation:cue3 2.6s cubic-bezier(.77,0,.18,1) infinite;opacity:0;transition:opacity 1s 2s}
 .ready .hero3 .cue{opacity:1}
 @keyframes cue3{0%{transform:scaleY(0);transform-origin:top}45%{transform:scaleY(1);transform-origin:top}55%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
 .intro{padding:20vh 0 18vh}
@@ -104,7 +108,7 @@ nav .burger.x i{top:16px;transform:rotate(45deg)}nav .burger.x i+i{transform:rot
   .hero3 .ph img{object-fit:contain;object-position:center;filter:none}
   .hero3 .wash,.hero3 .cue{display:none}
   .hero3 .txt{position:static;display:block;padding:26px clamp(20px,4vw,48px) 0}
-  .hero3 .meta{text-align:left;margin-top:22px;line-height:1.8}.hero3 h1{max-width:none;font-size:clamp(1.45rem,6.2vw,2rem);margin-top:14px}
+  .hero3 .meta{display:none}.hero3 .ph{order:0}.hero3 .eyebrow{order:1;position:static;font-size:.62rem;letter-spacing:.26em;padding:14px clamp(20px,4vw,48px) 0;border-top:0;background:none}.hero3 .txt{order:2}.hero3 h1{max-width:none;font-size:clamp(1.45rem,6.2vw,2rem);margin-top:14px}
   .intro{padding:14vh 0 12vh}.intro .q,.intro .p,.intro .facts{grid-column:1/13}.intro .facts{grid-template-columns:1fr 1fr;gap:26px 20px}
 }
 
